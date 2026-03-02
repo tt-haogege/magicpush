@@ -36,7 +36,7 @@ COPY server/package.json ./server/
 COPY --from=web-builder /app/web/dist ./web/dist
 
 # 复制版本信息
-COPY version.json ./server/
+COPY version.json ./
 
 # 创建数据目录
 RUN mkdir -p server/data server/logs

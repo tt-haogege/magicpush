@@ -7,11 +7,11 @@ RUN pnpm install --frozen-lockfile --prod
 
 # 阶段2: 运行镜像
 FROM node:20-alpine AS final
-WORKDIR /app
+WORKDIR /app/server
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json ./
 COPY src/ ./src/
-COPY ../version.json ./
+COPY ../version.json ../
 RUN mkdir -p data logs
 
 EXPOSE 3000
