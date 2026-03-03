@@ -48,6 +48,7 @@
 - 飞书机器人
 - 钉钉机器人
 - **微信公众号** (模板消息推送，支持测试号)
+- **Server酱** (微信推送服务)
 - **Webhook** (通用 HTTP 推送，支持自定义 URL/Headers/Body)
 
 ### 核心功能
@@ -299,6 +300,7 @@ curl -X POST http://localhost:3000/api/push \
 | 飞书 | webhookUrl (可选: secret) |
 | 钉钉 | webhookUrl (可选: secret) |
 | 微信公众号 | appId, appSecret, templateId, openIds (多个用逗号分隔) |
+| Server酱 | sendKey (可选: channel) |
 | Webhook | url, method (可选: headers, bodyTemplate) |
 
 ## 🔐 环境变量

@@ -105,6 +105,7 @@ const supportedChannels = [
   { name: '飞书', icon: Radio, bgColor: 'bg-purple-100 dark:bg-purple-900/30', iconColor: 'text-purple-600 dark:text-purple-400' },
   { name: '钉钉', icon: Bell, bgColor: 'bg-cyan-100 dark:bg-cyan-900/30', iconColor: 'text-cyan-600 dark:text-cyan-400' },
   { name: '微信公众号', icon: MessageCircle, bgColor: 'bg-green-100 dark:bg-green-900/30', iconColor: 'text-green-600 dark:text-green-400' },
+  { name: 'Server酱', icon: Zap, bgColor: 'bg-yellow-100 dark:bg-yellow-900/30', iconColor: 'text-yellow-600 dark:text-yellow-400' },
 ]
 
 const features = [
