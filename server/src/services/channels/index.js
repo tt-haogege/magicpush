@@ -6,6 +6,7 @@ const WxPusherChannel = require('./wxpusher.channel');
 const FeishuChannel = require('./feishu.channel');
 const DingtalkChannel = require('./dingtalk.channel');
 const WebhookChannel = require('./webhook.channel');
+const WechatOfficialChannel = require('./wechat-official.channel');
 
 // 渠道类型到适配器的映射
 const channelAdapters = {
@@ -16,6 +17,7 @@ const channelAdapters = {
   feishu: FeishuChannel,
   dingtalk: DingtalkChannel,
   webhook: WebhookChannel,
+  wechat_official: WechatOfficialChannel,
 };
 
 /**
@@ -68,6 +70,7 @@ module.exports = {
   FeishuChannel,
   DingtalkChannel,
   WebhookChannel,
+  WechatOfficialChannel,
   getChannelAdapter,
   getChannelTypes,
   validateChannelConfig,

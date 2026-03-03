@@ -94,7 +94,7 @@
 </template>
 
 <script setup>
-import { Bell, Github, Zap, Shield, Database, Globe, Code, Layers, MessageSquare, Send, Bot, Radio } from 'lucide-vue-next'
+import { Bell, Github, Zap, Shield, Database, Globe, Code, Layers, MessageSquare, Send, Bot, Radio, MessageCircle } from 'lucide-vue-next'
 import { VERSION } from '@/utils/version'
 
 const supportedChannels = [
@@ -104,6 +104,7 @@ const supportedChannels = [
   { name: 'WxPusher', icon: Bot, bgColor: 'bg-orange-100 dark:bg-orange-900/30', iconColor: 'text-orange-600 dark:text-orange-400' },
   { name: '飞书', icon: Radio, bgColor: 'bg-purple-100 dark:bg-purple-900/30', iconColor: 'text-purple-600 dark:text-purple-400' },
   { name: '钉钉', icon: Bell, bgColor: 'bg-cyan-100 dark:bg-cyan-900/30', iconColor: 'text-cyan-600 dark:text-cyan-400' },
+  { name: '微信公众号', icon: MessageCircle, bgColor: 'bg-green-100 dark:bg-green-900/30', iconColor: 'text-green-600 dark:text-green-400' },
 ]
 
 const features = [

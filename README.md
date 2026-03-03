@@ -47,6 +47,7 @@
 - WxPusher
 - 飞书机器人
 - 钉钉机器人
+- **微信公众号** (模板消息推送，支持测试号)
 - **Webhook** (通用 HTTP 推送，支持自定义 URL/Headers/Body)
 
 ### 核心功能
@@ -70,9 +71,18 @@
 
 [![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/GGBDF1?referralCode=nixingshiguang)
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?image=magiccode1412/magicpush:latest&env=PORT=3000)
++ 每月5美元额度
++ 需要验证手机号
++ 无需信用卡
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?image=magiccode1412/magicpush:latest&env=PORT=3000&name=magicpush)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/hsY2SI?referralCode=85Y1W5&utm_medium=integration&utm_source=template&utm_campaign=generic)
+
++ 先用30天免费试用，5美元积分，然后每月1美元
++ 每个服务最多支持1个vCPU / 0.5GB RAM
++ 0.5 GB 卷存储
++ 无需信用卡
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?image=magiccode1412/magicpush:latest&env=PORT=3000)（未测试）
 
 ### 使用预构建镜像
 
@@ -288,6 +298,7 @@ curl -X POST http://localhost:3000/api/push \
 | WxPusher | appToken (可选: uids, topicIds) |
 | 飞书 | webhookUrl (可选: secret) |
 | 钉钉 | webhookUrl (可选: secret) |
+| 微信公众号 | appId, appSecret, templateId, openIds (多个用逗号分隔) |
 | Webhook | url, method (可选: headers, bodyTemplate) |
 
 ## 🔐 环境变量
