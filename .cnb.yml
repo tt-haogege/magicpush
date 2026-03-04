@@ -140,8 +140,6 @@ main:
       env:
         IMAGE_TAG: ${CNB_REPO_SLUG_LOWERCASE}:latest
       stages:
-        - name: docker login
-          script: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
         - name: await the amd64
           type: cnb:await
           options:
@@ -153,6 +151,8 @@ main:
         - name: manifest
           image: cnbcool/manifest
           settings:
+            username: ${DOCKERHUB_USERNAME}
+            password: ${DOCKERHUB_TOKEN}
             target: ${IMAGE_TAG}
             template: ${IMAGE_TAG}-OS-ARCH
             platforms:
