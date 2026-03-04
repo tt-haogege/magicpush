@@ -41,11 +41,15 @@ main:
         IMAGE_TAG: ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest-linux-amd64
       stages:
         - name: docker login
-          script: docker login -u ${CNB_TOKEN_USER_NAME} -p "${CNB_TOKEN}" ${CNB_DOCKER_REGISTRY}
+          script: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
         - name: docker build
           script: docker build -t ${IMAGE_TAG} .
         - name: docker push
           script: docker push ${IMAGE_TAG}
+        - name: dockerhub push
+          script: |
+            docker tag ${IMAGE_TAG} ${DOCKERHUB_USERNAME}/${CNB_REPO_NAME_LOWERCASE}:latest
+            docker push ${DOCKERHUB_USERNAME}/${CNB_REPO_NAME_LOWERCASE}:latest    
         - name: resolve
           type: cnb:resolve
           options:
@@ -59,11 +63,15 @@ main:
         IMAGE_TAG: ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest-linux-arm64
       stages:
         - name: docker login
-          script: docker login -u ${CNB_TOKEN_USER_NAME} -p "${CNB_TOKEN}" ${CNB_DOCKER_REGISTRY}
+          script: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
         - name: docker build
           script: docker build -t ${IMAGE_TAG} .
         - name: docker push
           script: docker push ${IMAGE_TAG}
+        - name: dockerhub push
+          script: |
+            docker tag ${IMAGE_TAG} ${DOCKERHUB_USERNAME}/${CNB_REPO_NAME_LOWERCASE}:latest
+            docker push ${DOCKERHUB_USERNAME}/${CNB_REPO_NAME_LOWERCASE}:latest    
         - name: resolve
           type: cnb:resolve
           options:
@@ -110,20 +118,6 @@ main:
             username: "${GITHUB_USERNAME}"
             password: "${GITHUB_ACCESS_TOKEN}"
             force: true  
-
-  web_trigger_sync_to_dockerhub:
-    - services:
-        - docker
-      imports: https://cnb.cool/magiccode1412/secret/-/blob/main/env.yml
-      stages:
-        - name: pull docker image
-          script: docker pull ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest
-        - name: docker login
-          script: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-        - name: docker push
-          script: |
-            docker tag ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest ${DOCKERHUB_USERNAME}/${CNB_REPO_NAME_LOWERCASE}:latest
-            docker push ${DOCKERHUB_USERNAME}/${CNB_REPO_NAME_LOWERCASE}:latest
 
 dev:
   web_trigger_docker_dev:
