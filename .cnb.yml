@@ -137,7 +137,7 @@ main:
     - services:
         - docker
       env:
-        IMAGE_TAG: ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest
+        IMAGE_TAG: ${CNB_REPO_SLUG_LOWERCASE}:latest
       stages:
         - name: await the amd64
           type: cnb:await
