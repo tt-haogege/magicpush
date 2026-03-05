@@ -70,13 +70,11 @@
 
 ## 🐳 Docker 部署
 
+**latest镜像已支持amd/armv8架构**
+
 ### 点击下面任一按钮一键部署
 
 [![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/GGBDF1?referralCode=nixingshiguang)
-
-+ 每月5美元额度
-+ 需要验证手机号
-+ 无需信用卡
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/JbNI4y?referralCode=85Y1W5&utm_medium=integration&utm_source=template&utm_campaign=generic)
 
