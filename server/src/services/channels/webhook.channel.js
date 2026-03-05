@@ -41,14 +41,28 @@ class WebhookChannel extends BaseChannel {
     // 替换模板变量
     Object.entries(variables).forEach(([key, value]) => {
       const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
-      body = body.replace(regex, value);
+      // 对值进行 JSON 转义，防止破坏 JSON 结构
+      const escapedValue = typeof value === 'string' 
+        ? value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t')
+        : value;
+      body = body.replace(regex, escapedValue);
     });
 
-    // 尝试解析为 JSON，如果失败则返回字符串
+    // 尝试解析为 JSON，如果失败则记录警告并返回解析错误信息
     try {
       return JSON.parse(body);
-    } catch {
-      return body;
+    } catch (parseError) {
+      logger.warn(`[Webhook] Body 模板解析失败，请检查模板格式: ${parseError.message}`);
+      logger.warn(`[Webhook] 模板内容: ${this.bodyTemplate}`);
+      logger.warn(`[Webhook] 替换后内容: ${body}`);
+      // 返回默认 JSON 格式，避免发送格式错误的数据
+      return {
+        title: message.title || '',
+        content: message.content,
+        type: message.type || 'text',
+        timestamp: new Date().toISOString(),
+        _templateError: 'Body 模板格式错误，已使用默认格式',
+      };
     }
   }
 
