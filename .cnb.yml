@@ -61,6 +61,7 @@ main:
 
     - services:
         - docker
+      imports: https://cnb.cool/magiccode1412/secret/-/blob/main/env.yml
       env:
         CNB_IMAGE_TAG: ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest
         DOCKERHUB_IMAGE_TAG: ${DOCKERHUB_USERNAME}/${CNB_REPO_NAME_LOWERCASE}:latest
