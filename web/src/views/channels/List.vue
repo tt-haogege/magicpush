@@ -18,7 +18,7 @@
         <div class="text-sm text-blue-700 dark:text-blue-300">
           <p class="font-medium mb-1">支持的渠道类型</p>
           <p class="opacity-80">
-            企业微信 · Telegram · PushPlus · WxPusher · 飞书 · 钉钉 · Webhook
+            企业微信 · 钉钉 · 飞书 · Telegram · 微信公众号 · WxPusher · PushPlus · Server酱 · Webhook
           </p>
         </div>
       </div>
@@ -274,6 +274,8 @@ const getChannelColor = (type) => {
     feishu: 'bg-blue-600',
     dingtalk: 'bg-blue-400',
     webhook: 'bg-purple-500',
+    wechat_official: 'bg-green-600',
+    serverchan: 'bg-amber-500',
   }
   return colors[type] || 'bg-gray-500'
 }
@@ -287,6 +289,8 @@ const getChannelIcon = (type) => {
     feishu: Users,
     dingtalk: MessageSquare,
     webhook: Webhook,
+    wechat_official: MessageCircle,
+    serverchan: Send,
   }
   return icons[type] || Share2
 }
