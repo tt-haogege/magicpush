@@ -133,6 +133,12 @@ const checkSystemStatus = async () => {
     if (res.data) {
       hasAdminUser.value = res.data.system?.hasAdminUser ?? true
       registrationEnabled.value = res.data.system?.registrationEnabled ?? true
+
+      // 没有管理员用户时自动跳转到注册页面
+      if (!hasAdminUser.value) {
+        router.replace('/register')
+        return
+      }
     }
   } catch (error) {
     console.error('检查系统状态失败:', error)
