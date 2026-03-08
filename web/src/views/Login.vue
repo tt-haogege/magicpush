@@ -130,9 +130,9 @@ const checkSystemStatus = async () => {
   checkingStatus.value = true
   try {
     const res = await checkHealth()
-    if (res.data) {
-      hasAdminUser.value = res.data.system?.hasAdminUser ?? true
-      registrationEnabled.value = res.data.system?.registrationEnabled ?? true
+    if (res) {
+      hasAdminUser.value = res.system?.hasAdminUser ?? true
+      registrationEnabled.value = res.system?.registrationEnabled ?? true
 
       // 没有管理员用户时自动跳转到注册页面
       if (!hasAdminUser.value) {
