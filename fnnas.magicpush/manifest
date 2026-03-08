@@ -1,12 +1,12 @@
 appname               = magicpush
 version               = 1.0.0
 display_name          = 魔法推送
-desc                  = 一个支持多种消息渠道的统一推送服务管理平台，用户可以通过标准化的REST API接口将消息推送到多种通知渠道
-arch                  = x86_64
+desc                  = 一个支持多种消息渠道的统一推送服务管理平台，支持企业微信、钉钉、飞书、Telegram、微信公众号、WxPusher、PushPlus、Server酱、Webhook等渠道，通过标准化的REST API接口实现消息推送
+platform              = x86
 source                = thirdparty
 maintainer            = magiccode
-distributor           = magiccode
+maintainer_url        = https://github.com/magiccode1412/magicpush
 desktop_uidir         = ui
 desktop_applaunchname = magicpush.Application
 service_port          = "${wizard_app_port}"
-changelog             = 这是更新日志内容
+changelog             = 
