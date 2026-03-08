@@ -5,11 +5,13 @@
     <!-- 项目介绍 -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
       <div class="flex items-center gap-4 mb-6">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-          <Bell class="w-8 h-8 text-white" />
+        <!-- <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"> -->
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center">
+          <!-- <Bell class="w-8 h-8 text-white" /> -->
+          <img src="/favicon.png" alt="LOGO">
         </div>
         <div>
-          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ VERSION.name }}</h3>
+          <h3 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{{ VERSION.name }}</h3>
           <p class="text-gray-500 dark:text-gray-400">统一消息推送平台</p>
         </div>
       </div>

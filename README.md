@@ -1,4 +1,5 @@
-# ![logo](public/favicon.svg)MagicPush
+![logo](public/logo.png)
+# MagicPush
 
 一个支持多种消息渠道的推送服务管理平台，用户可以通过标准化的REST API接口将消息推送到多种通知渠道。
 

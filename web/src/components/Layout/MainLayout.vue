@@ -17,8 +17,10 @@
       <div class="flex flex-col h-full">
         <!-- Logo -->
         <div class="flex items-center gap-3 px-6 py-5 border-gray-200 dark:border-gray-700">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <Bell class="w-5 h-5 text-white" />
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center">
+          <!-- <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"> -->
+            <!-- <Bell class="w-5 h-5 text-white" /> -->
+           <img src="/favicon.png" alt="LOGO">  
           </div>
           <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             MagicPush
