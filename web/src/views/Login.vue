@@ -98,7 +98,7 @@
 
       <!-- 页脚 -->
       <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
-        支持多种消息渠道推送 · 企业微信 · 钉钉 · Telegram
+        支持多种消息渠道：企业微信 · 钉钉 · 飞书 · Telegram · 微信公众号 · WxPusher · PushPlus · Server酱 · Webhook
       </p>
     </div>
   </div>

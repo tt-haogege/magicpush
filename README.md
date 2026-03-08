@@ -105,7 +105,7 @@ services:
     # environment:
       # - JWT_SECRET=your-secret-key # 可选，不设置则自动生成安全密钥
     volumes:
-      - ./data:/app/data
+      - ./data:/app/server/data
     network_mode: bridge
     container_name: magicpush
 ```
