@@ -219,25 +219,31 @@
           <el-switch v-model="inboundForm.enabled" />
         </div>
 
-        <el-divider />
+        <el-divider v-if="inboundForm.enabled" />
 
         <!-- 数据来源类型 -->
         <div v-if="inboundForm.enabled">
           <div class="font-medium text-gray-900 dark:text-white mb-3">数据来源类型</div>
-          <el-radio-group v-model="inboundForm.sourceType" class="flex flex-col gap-2">
-            <el-radio 
-              v-for="template in inboundTemplates" 
-              :key="template.id" 
-              :value="template.id"
-              class="w-full p-3 rounded-lg border dark:border-gray-600"
-              :class="inboundForm.sourceType === template.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200'"
+          <div class="space-y-2">
+            <label
+              v-for="template in inboundTemplates"
+              :key="template.id"
+              class="flex items-start gap-2 p-3 rounded-lg border cursor-pointer transition-colors"
+              :class="inboundForm.sourceType === template.id 
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'"
             >
+              <el-radio 
+                v-model="inboundForm.sourceType" 
+                :value="template.id"
+                class="mt-0.5 !mr-0"
+              />
               <div>
-                <div class="font-medium">{{ template.name }}</div>
-                <div class="text-xs text-gray-500">{{ template.description }}</div>
+                <div class="font-medium text-gray-900 dark:text-white">{{ template.name }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">{{ template.description }}</div>
               </div>
-            </el-radio>
-          </el-radio-group>
+            </label>
+          </div>
         </div>
 
         <!-- 字段映射 -->
@@ -269,7 +275,7 @@
           </div>
         </div>
 
-        <el-divider />
+        <el-divider v-if="inboundForm.enabled && inboundForm.sourceType === 'generic'" />
 
         <!-- 接收地址 -->
         <div v-if="inboundForm.enabled">
@@ -286,7 +292,7 @@
           </div>
         </div>
 
-        <el-divider />
+        <el-divider v-if="inboundForm.enabled" />
 
         <!-- 测试 -->
         <div v-if="inboundForm.enabled">
@@ -359,6 +365,39 @@ const inboundTemplates = ref([])
 const inboundSaving = ref(false)
 const inboundTestLoading = ref(false)
 const inboundTestData = ref('')
+
+// 各数据来源类型的示例数据
+const inboundExampleData = {
+  grafana: {
+    alerts: [{
+      labels: { alertname: '测试告警' },
+      annotations: { message: '这是一条测试消息' }
+    }]
+  },
+  prometheus: {
+    alerts: [{
+      labels: { alertname: 'InstanceDown', severity: 'critical' },
+      annotations: { description: '节点 node-01 已宕机超过5分钟' }
+    }]
+  },
+  github: {
+    action: 'opened',
+    repository: { full_name: 'owner/repo' },
+    sender: { login: 'username' }
+  },
+  emby: {
+    Title: 'Test Notification',
+    Description: 'Test Notification Description',
+    Event: 'system.webhooktest',
+    User: { Name: 'emby' },
+    Server: { Name: 'Emby' }
+  },
+  generic: {
+    title: '示例标题',
+    content: '示例内容',
+    type: 'text'
+  }
+}
 
 const inboundForm = reactive({
   enabled: false,
@@ -631,16 +670,8 @@ const openInboundConfig = (endpoint) => {
   }
   
   // 设置测试数据
-  if (inboundForm.sourceType === 'grafana') {
-    inboundTestData.value = JSON.stringify({
-      alerts: [{
-        labels: { alertname: '测试告警' },
-        annotations: { message: '这是一条测试消息' }
-      }]
-    }, null, 2)
-  } else {
-    inboundTestData.value = ''
-  }
+  const exampleData = inboundExampleData[inboundForm.sourceType]
+  inboundTestData.value = exampleData ? JSON.stringify(exampleData, null, 2) : ''
   
   showInboundDrawer.value = true
 }
@@ -720,6 +751,14 @@ const testInbound = async () => {
 watch(showCreateDialog, (newVal) => {
   if (!newVal) {
     resetForm()
+  }
+})
+
+// 监听数据来源类型变化，更新示例数据
+watch(() => inboundForm.sourceType, (newType) => {
+  const exampleData = inboundExampleData[newType]
+  if (exampleData) {
+    inboundTestData.value = JSON.stringify(exampleData, null, 2)
   }
 })
 

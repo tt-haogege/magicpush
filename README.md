@@ -330,6 +330,41 @@ LOG_LEVEL=info
 3. 实现 `send()`, `validate()`, `test()` 方法
 4. 在 `index.js` 中注册新渠道
 
+### 添加入站配置数据来源模板
+
+在 `server/src/utils/jsonpath.js` 的 `PRESET_TEMPLATES` 对象中添加新模板：
+
+```javascript
+const PRESET_TEMPLATES = {
+  // 现有模板...
+  
+  // 添加新模板
+  jenkins: {
+    name: 'Jenkins',                    // 显示名称
+    description: 'Jenkins 构建通知',     // 描述文字
+    fieldMapping: {
+      title: '$.name',                  // 标题的 JSONPath 表达式
+      content: '$.build.full_url',      // 内容的 JSONPath 表达式
+    },
+    defaultValues: {
+      type: 'text',                     // 消息类型: text/markdown/html
+    },
+  },
+};
+```
+
+**模板字段说明：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `name` | string | 显示名称 |
+| `description` | string | 描述文字 |
+| `fieldMapping.title` | string | 标题的 JSONPath 表达式 |
+| `fieldMapping.content` | string | 内容的 JSONPath 表达式 |
+| `defaultValues.type` | string | 消息类型：`text` / `markdown` / `html` |
+
+前端通过 API 自动获取模板列表，无需修改前端代码。
+
 ### 数据库表结构
 
 - `users` - 用户信息

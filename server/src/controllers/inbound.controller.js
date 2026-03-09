@@ -10,7 +10,7 @@ const logger = require('../utils/logger');
 class InboundController {
   /**
    * 处理入站请求
-   * POST /api/inbound/:token
+   * GET/POST /api/inbound/:token
    */
   static async handleInbound(req, res) {
     try {
@@ -33,14 +33,31 @@ class InboundController {
         return ResponseUtil.badRequest(res, '该接口未启用入站接收功能，请在接口配置中开启');
       }
 
-      // 获取请求数据
-      const payload = req.body;
-
-      if (!payload || Object.keys(payload).length === 0) {
-        return ResponseUtil.badRequest(res, '请求体不能为空');
+      // 获取请求数据：POST 从 body 获取，GET 从 query 获取
+      let payload;
+      if (req.method === 'GET') {
+        payload = req.query;
+        // 将 query 参数中的特殊字段转换
+        if (payload.data) {
+          try {
+            // 支持传递 JSON 字符串
+            payload = JSON.parse(payload.data);
+          } catch (e) {
+            // 如果不是 JSON，保持原样
+          }
+        }
+      } else {
+        payload = req.body;
       }
 
-      logger.info(`[Inbound] 收到入站请求: endpoint=${endpoint.name}, token=${token.substring(0, 8)}...`);
+      // 临时日志：记录完整请求体
+      // logger.info(`[Inbound] 完整请求体: ${JSON.stringify(payload, null, 2)}`);
+
+      if (!payload || Object.keys(payload).length === 0) {
+        return ResponseUtil.badRequest(res, '请求数据不能为空');
+      }
+
+      logger.info(`[Inbound] 收到入站请求: endpoint=${endpoint.name}, token=${token.substring(0, 8)}..., method=${req.method}`);
 
       // 处理入站数据，转换为标准消息格式
       const message = InboundService.processInbound(endpoint, payload);

@@ -26,14 +26,28 @@ class InboundService {
     if (config.sourceType && config.sourceType !== 'generic') {
       const preset = getPresetTemplate(config.sourceType);
       if (preset) {
-        // 用户配置优先于预设模板
-        mapping = { ...preset.fieldMapping, ...mapping };
+        // 合并映射：预设为基础，用户非空配置覆盖预设
+        const userMapping = mapping || {};
+        const filteredUserMapping = {};
+        for (const [key, value] of Object.entries(userMapping)) {
+          if (value !== '' && value !== null && value !== undefined) {
+            filteredUserMapping[key] = value;
+          }
+        }
+        mapping = { ...preset.fieldMapping, ...filteredUserMapping };
         defaults = { ...preset.defaultValues, ...defaults };
       }
     }
 
     // 提取字段
     const message = extractFields(payload, mapping, defaults);
+
+    // 根据数据来源类型丰富消息内容
+    if (config.sourceType && config.sourceType !== 'generic') {
+      this.enrichMessage(message, config.sourceType, payload);
+    }
+
+    logger.info(`[Inbound] 提取结果: mapping=${JSON.stringify(mapping)}, message=${JSON.stringify(message)}`);
 
     // 验证必要字段
     if (!message.content) {
@@ -82,6 +96,58 @@ class InboundService {
       content: String(content),
       type: ['text', 'markdown', 'html'].includes(type) ? type : 'text',
     };
+  }
+
+  /**
+   * 根据数据来源类型丰富消息内容
+   */
+  static enrichMessage(message, sourceType, payload) {
+    switch (sourceType) {
+      case 'emby':
+        // 丰富 Emby 消息内容
+        const parts = [];
+        if (message.content) parts.push(message.content);
+        if (payload.Event) parts.push(`事件: ${payload.Event}`);
+        if (payload.User?.Name) parts.push(`用户: ${payload.User.Name}`);
+        if (payload.Server?.Name) parts.push(`服务器: ${payload.Server.Name}`);
+        if (payload.Severity) parts.push(`级别: ${payload.Severity}`);
+        if (parts.length > 1) {
+          message.content = parts.join('\n');
+        }
+        break;
+
+      case 'grafana':
+      case 'prometheus':
+        // 丰富告警消息
+        if (payload.alerts && payload.alerts[0]) {
+          const alert = payload.alerts[0];
+          const parts = [message.content];
+          if (alert.labels) {
+            const labels = Object.entries(alert.labels)
+              .map(([k, v]) => `${k}=${v}`)
+              .join(', ');
+            if (labels) parts.push(`标签: ${labels}`);
+          }
+          if (alert.annotations?.summary) {
+            parts.push(`摘要: ${alert.annotations.summary}`);
+          }
+          if (alert.status) parts.push(`状态: ${alert.status}`);
+          if (parts.length > 1) {
+            message.content = parts.join('\n');
+          }
+        }
+        break;
+
+      case 'github':
+        // 丰富 GitHub 消息
+        const ghParts = [message.content];
+        if (payload.sender?.login) ghParts.push(`触发者: ${payload.sender.login}`);
+        if (payload.ref) ghParts.push(`分支: ${payload.ref}`);
+        if (ghParts.length > 1) {
+          message.content = ghParts.join('\n');
+        }
+        break;
+    }
   }
 
   /**

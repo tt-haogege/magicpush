@@ -72,6 +72,7 @@ class EndpointService {
     if (endpointData.name !== undefined) updateData.name = endpointData.name;
     if (endpointData.description !== undefined) updateData.description = endpointData.description;
     if (endpointData.is_active !== undefined) updateData.is_active = endpointData.is_active;
+    if (endpointData.inbound_config !== undefined) updateData.inbound_config = endpointData.inbound_config;
     if (endpointData.token !== null) {
       // 如果 token 为 null,表示需要自动生成新令牌
       // 如果 token 为 undefined,表示不更新令牌

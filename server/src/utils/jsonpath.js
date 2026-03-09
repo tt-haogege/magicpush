@@ -6,7 +6,7 @@
 /**
  * 从对象中根据路径获取值
  * @param {Object} obj - 源对象
- * @param {String} path - JSONPath 路径，如 $.alerts[0].labels.alertname
+ * @param {String} path - JSONPath 路径，如 $.alerts[0].labels.alertname 或 $[0].Title
  * @returns {any} - 找到的值，如果不存在则返回 undefined
  */
 function getValue(obj, path) {
@@ -14,13 +14,12 @@ function getValue(obj, path) {
     return undefined;
   }
 
-  // 如果不是以 $. 开头，直接作为属性名处理
-  if (!path.startsWith('$.')) {
+  // 如果不是以 $ 开头，直接作为属性名处理
+  if (!path.startsWith('$')) {
     return obj[path];
   }
 
-  // 移除 $. 前缀
-  let current = path.slice(2);
+  let current = path.slice(1); // 移除 $ 前缀
   let value = obj;
 
   // 解析路径
@@ -119,6 +118,17 @@ const PRESET_TEMPLATES = {
     fieldMapping: {
       title: '$.action',
       content: '$.repository.full_name',
+    },
+    defaultValues: {
+      type: 'text',
+    },
+  },
+  emby: {
+    name: 'Emby',
+    description: 'Emby 媒体库通知',
+    fieldMapping: {
+      title: '$.Title',
+      content: '$.Description',
     },
     defaultValues: {
       type: 'text',

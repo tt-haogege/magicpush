@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const inboundController = require('../controllers/inbound.controller');
 const EndpointModel = require('../models/endpoint.model');
+const logger = require('../utils/logger');
 
 /**
  * 中间件：验证 token 并加载 endpoint
@@ -9,6 +10,9 @@ const EndpointModel = require('../models/endpoint.model');
 async function loadEndpoint(req, res, next) {
   try {
     const { token } = req.params;
+
+    // 调试日志
+    logger.info(`[Inbound] 收到请求: method=${req.method}, token=${token}`);
 
     if (!token) {
       return res.status(400).json({
@@ -20,6 +24,9 @@ async function loadEndpoint(req, res, next) {
 
     // 查找 endpoint
     const endpoint = EndpointModel.findByToken(token);
+
+    // 调试日志
+    logger.info(`[Inbound] 查询结果: ${endpoint ? `找到 endpoint id=${endpoint.id}` : '未找到'}`);
 
     if (!endpoint) {
       return res.status(404).json({
@@ -37,8 +44,8 @@ async function loadEndpoint(req, res, next) {
       });
     }
 
-    // 解析 inbound_config
-    if (endpoint.inbound_config) {
+    // 解析 inbound_config（如果还是字符串）
+    if (endpoint.inbound_config && typeof endpoint.inbound_config === 'string') {
       try {
         endpoint.inbound_config = JSON.parse(endpoint.inbound_config);
       } catch (e) {
@@ -58,7 +65,8 @@ async function loadEndpoint(req, res, next) {
   }
 }
 
-// 入站接收接口
+// 入站接收接口（支持 GET 和 POST）
+router.get('/:token', loadEndpoint, inboundController.handleInbound);
 router.post('/:token', loadEndpoint, inboundController.handleInbound);
 
 // 测试入站配置（需要认证，在认证路由中处理）

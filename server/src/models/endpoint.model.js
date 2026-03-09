@@ -56,7 +56,19 @@ class EndpointModel {
     }
 
     const stmt = db.prepare(sql);
-    return stmt.all(...params);
+    const endpoints = stmt.all(...params);
+
+    // 解析每个 endpoint 的 inbound_config
+    return endpoints.map(endpoint => {
+      if (endpoint.inbound_config) {
+        try {
+          endpoint.inbound_config = JSON.parse(endpoint.inbound_config);
+        } catch (e) {
+          endpoint.inbound_config = null;
+        }
+      }
+      return endpoint;
+    });
   }
 
   /**

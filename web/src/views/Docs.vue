@@ -151,64 +151,6 @@
         </ol>
       </div>
     </div>
-      
-      <!-- 方式1: URL 中的 Token -->
-      <div class="mb-6">
-        <h4 class="text-md font-medium text-gray-800 dark:text-gray-200 mb-3">方式一：Token 在 URL 路径中</h4>
-        <div class="space-y-3">
-          <div class="flex items-center gap-2">
-            <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded">GET</span>
-            <code class="text-sm text-gray-700 dark:text-gray-300">/api/push/{token}?title=标题&content=内容</code>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded">POST</span>
-            <code class="text-sm text-gray-700 dark:text-gray-300">/api/push/{token}</code>
-          </div>
-          
-          <div class="bg-gray-900 rounded-lg p-4 mt-3">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs text-gray-400">请求示例 (GET)</span>
-              <button @click="copyCode(getExample)" class="text-xs text-gray-400 hover:text-white flex items-center gap-1">
-                <Copy class="w-3 h-3" />
-                复制
-              </button>
-            </div>
-            <pre class="text-sm text-green-400 overflow-x-auto"><code>{{ getExample }}</code></pre>
-          </div>
-
-          <div class="bg-gray-900 rounded-lg p-4">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs text-gray-400">请求示例 (POST)</span>
-              <button @click="copyCode(postExample)" class="text-xs text-gray-400 hover:text-white flex items-center gap-1">
-                <Copy class="w-3 h-3" />
-                复制
-              </button>
-            </div>
-            <pre class="text-sm text-green-400 overflow-x-auto"><code>{{ postExample }}</code></pre>
-          </div>
-        </div>
-      </div>
-
-      <!-- 方式2: Authorization 头 -->
-      <div>
-        <h4 class="text-md font-medium text-gray-800 dark:text-gray-200 mb-3">方式二：Token 在 Authorization 头中（推荐）</h4>
-        <div class="flex items-center gap-2 mb-3">
-          <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded">POST</span>
-          <code class="text-sm text-gray-700 dark:text-gray-300">/api/push/</code>
-        </div>
-        
-        <div class="bg-gray-900 rounded-lg p-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs text-gray-400">请求示例</span>
-            <button @click="copyCode(authExample)" class="text-xs text-gray-400 hover:text-white flex items-center gap-1">
-              <Copy class="w-3 h-3" />
-              复制
-            </button>
-          </div>
-          <pre class="text-sm text-green-400 overflow-x-auto"><code>{{ authExample }}</code></pre>
-        </div>
-      </div>
-    </div>
 
     <!-- 请求参数 -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
