@@ -41,14 +41,24 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="请求方式">
+            <el-form-item label="接口类型">
+              <el-radio-group v-model="apiType" :disabled="!canUseInbound">
+                <el-radio-button label="push">标准推送</el-radio-button>
+                <el-radio-button label="inbound" :disabled="!canUseInbound">入站接收</el-radio-button>
+              </el-radio-group>
+              <div v-if="!canUseInbound && currentEndpoint" class="text-xs text-gray-400 mt-1">
+                该接口未启用入站配置
+              </div>
+            </el-form-item>
+
+            <el-form-item label="请求方式" v-if="apiType === 'push'">
               <el-radio-group v-model="requestMethod">
                 <el-radio-button label="GET">GET</el-radio-button>
                 <el-radio-button label="POST">POST</el-radio-button>
               </el-radio-group>
             </el-form-item>
 
-            <el-form-item label="Token 位置" v-if="requestMethod === 'POST'">
+            <el-form-item label="Token 位置" v-if="apiType === 'push' && requestMethod === 'POST'">
               <el-radio-group v-model="tokenPosition">
                 <el-radio-button label="url">URL 路径</el-radio-button>
                 <el-radio-button label="header">Authorization 头</el-radio-button>
@@ -64,7 +74,8 @@
             请求参数
           </h3>
 
-          <el-form label-position="top">
+          <!-- 标准推送参数 -->
+          <el-form label-position="top" v-if="apiType === 'push'">
             <el-form-item label="消息标题">
               <el-input
                 v-model="form.title"
@@ -107,10 +118,36 @@
               </el-button>
             </el-form-item>
           </el-form>
+
+          <!-- 入站接收参数 -->
+          <el-form label-position="top" v-if="apiType === 'inbound'">
+            <el-form-item label="请求体 (JSON)">
+              <el-input
+                v-model="inboundBody"
+                type="textarea"
+                :rows="10"
+                placeholder='{"alerts": [{"labels": {"alertname": "测试告警"}, "annotations": {"message": "测试消息"}}]}'
+              />
+            </el-form-item>
+
+            <el-form-item>
+              <el-button
+                type="primary"
+                size="large"
+                :loading="loading"
+                :disabled="!canSubmitInbound"
+                @click="handleInboundTest"
+                class="w-full"
+              >
+                <Send class="w-4 h-4 mr-2" />
+                {{ loading ? '发送中...' : '发送测试请求' }}
+              </el-button>
+            </el-form-item>
+          </el-form>
         </div>
 
         <!-- 快捷填充 -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6" v-if="apiType === 'push'">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Zap class="w-5 h-5 text-yellow-500" />
             快捷填充
@@ -120,6 +157,20 @@
             <el-button @click="fillExample('markdown')">Markdown 示例</el-button>
             <el-button @click="fillExample('html')">HTML 示例</el-button>
             <el-button @click="clearForm">清空</el-button>
+          </div>
+        </div>
+
+        <!-- 入站示例 -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6" v-if="apiType === 'inbound'">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Zap class="w-5 h-5 text-yellow-500" />
+            快捷填充
+          </h3>
+          <div class="flex flex-wrap gap-2">
+            <el-button @click="fillInboundExample('grafana')">Grafana 示例</el-button>
+            <el-button @click="fillInboundExample('prometheus')">Prometheus 示例</el-button>
+            <el-button @click="fillInboundExample('generic')">通用示例</el-button>
+            <el-button @click="clearInboundForm">清空</el-button>
           </div>
         </div>
       </div>
@@ -264,6 +315,7 @@ import {
 
 const endpoints = ref([])
 const selectedEndpoint = ref(null)
+const apiType = ref('push')
 const requestMethod = ref('POST')
 const tokenPosition = ref('url')
 const headerFormat = ref('text')
@@ -276,6 +328,9 @@ const form = reactive({
   type: 'text',
 })
 
+// 入站相关
+const inboundBody = ref('')
+
 const currentEndpoint = computed(() => {
   return endpoints.value.find(e => e.id === selectedEndpoint.value)
 })
@@ -284,11 +339,23 @@ const canSubmit = computed(() => {
   return selectedEndpoint.value && form.content.trim()
 })
 
+const canUseInbound = computed(() => {
+  return currentEndpoint.value?.inbound_config?.enabled
+})
+
+const canSubmitInbound = computed(() => {
+  return selectedEndpoint.value && inboundBody.value.trim()
+})
+
 const requestUrl = computed(() => {
   if (!currentEndpoint.value) return '请选择接口'
   
   const baseUrl = window.location.origin
   const token = currentEndpoint.value.token
+  
+  if (apiType.value === 'inbound') {
+    return `${baseUrl}/api/inbound/${token}`
+  }
   
   if (requestMethod.value === 'GET') {
     const params = new URLSearchParams()
@@ -306,6 +373,9 @@ const requestUrl = computed(() => {
 })
 
 const requestHeaders = computed(() => {
+  if (apiType.value === 'inbound') {
+    return 'Content-Type: application/json'
+  }
   if (requestMethod.value === 'POST' && tokenPosition.value === 'header') {
     return `Authorization: Bearer ${currentEndpoint.value?.token || 'your_token'}\nContent-Type: application/json`
   }
@@ -317,13 +387,16 @@ const requestHeaders = computed(() => {
 
 const requestHeadersJson = computed(() => {
   const headers = { 'Content-Type': 'application/json' }
-  if (requestMethod.value === 'POST' && tokenPosition.value === 'header') {
+  if (apiType.value === 'push' && requestMethod.value === 'POST' && tokenPosition.value === 'header') {
     headers['Authorization'] = `Bearer ${currentEndpoint.value?.token || 'your_token'}`
   }
   return JSON.stringify(headers, null, 2)
 })
 
 const requestBody = computed(() => {
+  if (apiType.value === 'inbound') {
+    return inboundBody.value || '{\n  \n}'
+  }
   if (requestMethod.value === 'GET') return null
   
   const body = {
@@ -338,6 +411,15 @@ const curlCommand = computed(() => {
   if (!currentEndpoint.value) return ''
   
   const token = currentEndpoint.value.token
+  
+  if (apiType.value === 'inbound') {
+    let cmd = `curl -X POST`
+    cmd += ` \\\n  -H "Content-Type: application/json"`
+    cmd += ` \\\n  -d '${inboundBody.value || '{}'}'`
+    cmd += ` \\\n  "${requestUrl.value}"`
+    return cmd
+  }
+  
   let cmd = `curl -X ${requestMethod.value}`
   
   if (requestMethod.value === 'POST') {
@@ -373,6 +455,10 @@ const loadEndpoints = async () => {
 
 const handleEndpointChange = () => {
   response.value = null
+  // 如果选择的接口不支持入站，切换到标准推送
+  if (apiType.value === 'inbound' && !canUseInbound.value) {
+    apiType.value = 'push'
+  }
 }
 
 const handleTest = async () => {
@@ -426,6 +512,47 @@ const handleTest = async () => {
   }
 }
 
+const handleInboundTest = async () => {
+  if (!canSubmitInbound.value) return
+  
+  loading.value = true
+  response.value = null
+  
+  try {
+    let testData
+    try {
+      testData = JSON.parse(inboundBody.value)
+    } catch (e) {
+      ElMessage.error('JSON 格式错误')
+      loading.value = false
+      return
+    }
+    
+    const res = await axios.post(requestUrl.value, testData, {
+      headers: { 'Content-Type': 'application/json' }
+    })
+    
+    response.value = res.data
+    
+    if (res.data.success) {
+      ElMessage.success('推送成功')
+    } else {
+      ElMessage.warning(res.data.message || '部分推送失败')
+    }
+  } catch (error) {
+    console.error('请求失败:', error)
+    response.value = {
+      success: false,
+      code: error.response?.status || 500,
+      message: error.response?.data?.message || error.message || '请求失败',
+      data: error.response?.data,
+    }
+    ElMessage.error(error.response?.data?.message || '请求失败')
+  } finally {
+    loading.value = false
+  }
+}
+
 const fillExample = (type) => {
   const examples = {
     text: {
@@ -455,6 +582,44 @@ const clearForm = () => {
   form.title = ''
   form.content = ''
   form.type = 'text'
+  response.value = null
+}
+
+const fillInboundExample = (type) => {
+  const examples = {
+    grafana: {
+      alerts: [{
+        status: 'firing',
+        labels: { alertname: 'HighMemoryUsage', severity: 'warning' },
+        annotations: { 
+          message: '内存使用率超过 90%，当前值：92%', 
+          summary: '服务器内存告警' 
+        },
+        startsAt: new Date().toISOString(),
+      }]
+    },
+    prometheus: {
+      alerts: [{
+        status: 'firing',
+        labels: { alertname: 'InstanceDown', instance: 'localhost:9090' },
+        annotations: { 
+          description: '实例 localhost:9090 已经宕机超过 5 分钟',
+          summary: '实例下线告警'
+        },
+      }]
+    },
+    generic: {
+      event: 'test',
+      message: '这是一条测试消息',
+      timestamp: new Date().toISOString(),
+    },
+  }
+  
+  inboundBody.value = JSON.stringify(examples[type], null, 2)
+}
+
+const clearInboundForm = () => {
+  inboundBody.value = ''
   response.value = null
 }
 

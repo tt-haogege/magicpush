@@ -9,7 +9,15 @@ class EndpointModel {
    */
   static findById(id) {
     const stmt = db.prepare('SELECT * FROM endpoints WHERE id = ?');
-    return stmt.get(id);
+    const endpoint = stmt.get(id);
+    if (endpoint && endpoint.inbound_config) {
+      try {
+        endpoint.inbound_config = JSON.parse(endpoint.inbound_config);
+      } catch (e) {
+        endpoint.inbound_config = null;
+      }
+    }
+    return endpoint;
   }
 
   /**
@@ -17,7 +25,15 @@ class EndpointModel {
    */
   static findByToken(token) {
     const stmt = db.prepare('SELECT * FROM endpoints WHERE token = ?');
-    return stmt.get(token);
+    const endpoint = stmt.get(token);
+    if (endpoint && endpoint.inbound_config) {
+      try {
+        endpoint.inbound_config = JSON.parse(endpoint.inbound_config);
+      } catch (e) {
+        endpoint.inbound_config = null;
+      }
+    }
+    return endpoint;
   }
 
   /**
@@ -92,6 +108,10 @@ class EndpointModel {
     if (endpointData.token !== undefined) {
       fields.push('token = ?');
       values.push(endpointData.token);
+    }
+    if (endpointData.inbound_config !== undefined) {
+      fields.push('inbound_config = ?');
+      values.push(endpointData.inbound_config ? JSON.stringify(endpointData.inbound_config) : null);
     }
 
     if (fields.length === 0) return null;

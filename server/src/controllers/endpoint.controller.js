@@ -1,6 +1,7 @@
 const EndpointService = require('../services/endpoint.service');
 const ResponseUtil = require('../utils/response');
 const logger = require('../utils/logger');
+const { getAllPresetTemplates, getPresetTemplate } = require('../utils/jsonpath');
 
 /**
  * 接口控制器
@@ -162,6 +163,60 @@ class EndpointController {
     } catch (error) {
       logger.error('验证令牌失败:', error);
       return ResponseUtil.serverError(res, '验证令牌失败');
+    }
+  }
+
+  /**
+   * 更新入站配置
+   */
+  static async updateInboundConfig(req, res) {
+    try {
+      const { inboundConfig } = req.body;
+      const endpoint = await EndpointService.updateEndpoint(
+        parseInt(req.params.id),
+        req.user.userId,
+        { inbound_config: inboundConfig }
+      );
+      return ResponseUtil.success(res, endpoint, '入站配置更新成功');
+    } catch (error) {
+      if (error.message === '接口不存在') {
+        return ResponseUtil.notFound(res, error.message);
+      }
+      logger.error('更新入站配置失败:', error);
+      return ResponseUtil.badRequest(res, error.message);
+    }
+  }
+
+  /**
+   * 获取入站预设模板列表
+   */
+  static async getInboundTemplates(req, res) {
+    try {
+      const templates = getAllPresetTemplates();
+      return ResponseUtil.success(res, templates);
+    } catch (error) {
+      logger.error('获取入站模板失败:', error);
+      return ResponseUtil.serverError(res, '获取入站模板失败');
+    }
+  }
+
+  /**
+   * 获取单个入站预设模板
+   */
+  static async getInboundTemplate(req, res) {
+    try {
+      const { type } = req.params;
+      const template = getPresetTemplate(type);
+      if (!template) {
+        return ResponseUtil.notFound(res, '模板不存在');
+      }
+      return ResponseUtil.success(res, {
+        id: type,
+        ...template,
+      });
+    } catch (error) {
+      logger.error('获取入站模板失败:', error);
+      return ResponseUtil.serverError(res, '获取入站模板失败');
     }
   }
 }

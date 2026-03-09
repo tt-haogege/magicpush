@@ -108,6 +108,108 @@
       </div>
     </div>
 
+    <!-- 入站接收接口 -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <Settings class="w-5 h-5 text-cyan-500" />
+        入站接收（Webhook）
+      </h3>
+      
+      <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+        <p class="text-sm text-blue-700 dark:text-blue-300">
+          <strong>适用场景：</strong>当外部服务（如 Grafana、GitHub、Prometheus 等）无法自定义数据格式时，
+          可使用入站接口配合字段映射，自动解析数据并推送。
+        </p>
+      </div>
+
+      <div class="mb-6">
+        <h4 class="text-md font-medium text-gray-800 dark:text-gray-200 mb-3">接口地址</h4>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded">POST</span>
+          <code class="text-sm text-gray-700 dark:text-gray-300">/api/inbound/{token}</code>
+        </div>
+        
+        <div class="bg-gray-900 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-gray-400">请求示例 (Grafana 告警)</span>
+            <button @click="copyCode(inboundExample)" class="text-xs text-gray-400 hover:text-white flex items-center gap-1">
+              <Copy class="w-3 h-3" />
+              复制
+            </button>
+          </div>
+          <pre class="text-sm text-green-400 overflow-x-auto"><code>{{ inboundExample }}</code></pre>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="text-md font-medium text-gray-800 dark:text-gray-200 mb-3">配置说明</h4>
+        <ol class="list-decimal list-inside space-y-2 text-sm text-gray-600 dark:text-gray-400">
+          <li>在<strong>接口管理</strong>页面，点击接口的「入站配置」按钮</li>
+          <li>启用入站接收，选择数据来源类型（如 Grafana、Prometheus 等）</li>
+          <li>系统会自动填充字段映射规则，或选择「通用」自定义映射</li>
+          <li>复制接收地址，配置到外部服务的 Webhook 中</li>
+        </ol>
+      </div>
+    </div>
+      
+      <!-- 方式1: URL 中的 Token -->
+      <div class="mb-6">
+        <h4 class="text-md font-medium text-gray-800 dark:text-gray-200 mb-3">方式一：Token 在 URL 路径中</h4>
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded">GET</span>
+            <code class="text-sm text-gray-700 dark:text-gray-300">/api/push/{token}?title=标题&content=内容</code>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded">POST</span>
+            <code class="text-sm text-gray-700 dark:text-gray-300">/api/push/{token}</code>
+          </div>
+          
+          <div class="bg-gray-900 rounded-lg p-4 mt-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs text-gray-400">请求示例 (GET)</span>
+              <button @click="copyCode(getExample)" class="text-xs text-gray-400 hover:text-white flex items-center gap-1">
+                <Copy class="w-3 h-3" />
+                复制
+              </button>
+            </div>
+            <pre class="text-sm text-green-400 overflow-x-auto"><code>{{ getExample }}</code></pre>
+          </div>
+
+          <div class="bg-gray-900 rounded-lg p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs text-gray-400">请求示例 (POST)</span>
+              <button @click="copyCode(postExample)" class="text-xs text-gray-400 hover:text-white flex items-center gap-1">
+                <Copy class="w-3 h-3" />
+                复制
+              </button>
+            </div>
+            <pre class="text-sm text-green-400 overflow-x-auto"><code>{{ postExample }}</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- 方式2: Authorization 头 -->
+      <div>
+        <h4 class="text-md font-medium text-gray-800 dark:text-gray-200 mb-3">方式二：Token 在 Authorization 头中（推荐）</h4>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded">POST</span>
+          <code class="text-sm text-gray-700 dark:text-gray-300">/api/push/</code>
+        </div>
+        
+        <div class="bg-gray-900 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-gray-400">请求示例</span>
+            <button @click="copyCode(authExample)" class="text-xs text-gray-400 hover:text-white flex items-center gap-1">
+              <Copy class="w-3 h-3" />
+              复制
+            </button>
+          </div>
+          <pre class="text-sm text-green-400 overflow-x-auto"><code>{{ authExample }}</code></pre>
+        </div>
+      </div>
+    </div>
+
     <!-- 请求参数 -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
@@ -251,6 +353,7 @@ import {
   MessageSquare,
   HelpCircle,
   Copy,
+  Settings,
 } from 'lucide-vue-next'
 
 const apiBaseUrl = window.location.origin
@@ -272,6 +375,16 @@ const authExample = `curl -X POST ${apiBaseUrl}/api/push \\
     "title": "测试消息",
     "content": "这是一条测试消息",
     "type": "text"
+  }'`
+
+const inboundExample = `curl -X POST ${apiBaseUrl}/api/inbound/your_token \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "alerts": [{
+      "status": "firing",
+      "labels": { "alertname": "HighMemoryUsage" },
+      "annotations": { "message": "内存使用率超过 90%" }
+    }]
   }'`
 
 const successResponse = JSON.stringify({

@@ -35,3 +35,16 @@ export const validateToken = (token) => {
 export const getEndpointChannels = (id) => {
   return request.get(`/endpoints/${id}/channels`)
 }
+
+// 入站配置相关 API
+export const updateInboundConfig = (id, inboundConfig) => {
+  return request.put(`/endpoints/${id}/inbound-config`, { inboundConfig })
+}
+
+export const getInboundTemplates = () => {
+  return request.get('/endpoints/inbound-templates')
+}
+
+export const getInboundTemplate = (type) => {
+  return request.get(`/endpoints/inbound-templates/${type}`)
+}

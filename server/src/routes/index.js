@@ -7,6 +7,7 @@ const userRoutes = require('./user.routes');
 const channelRoutes = require('./channel.routes');
 const endpointRoutes = require('./endpoint.routes');
 const pushRoutes = require('./push.routes');
+const inboundRoutes = require('./inbound.routes');
 const logRoutes = require('./log.routes');
 const adminRoutes = require('./admin.routes');
 const authenticate = require('../middleware/auth.middleware');
@@ -76,6 +77,9 @@ router.use('/endpoints', endpointRoutes);
 
 // 推送相关路由
 router.use('/push', pushRoutes);
+
+// 入站接收路由
+router.use('/inbound', inboundRoutes);
 
 // 日志相关路由
 router.use('/logs', logRoutes);

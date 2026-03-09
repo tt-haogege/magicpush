@@ -39,4 +39,13 @@ router.put('/:id/channels', endpointController.updateEndpointChannels);
 // 获取接口渠道绑定
 router.get('/:id/channels', endpointController.getEndpointChannels);
 
+// 更新入站配置
+router.put('/:id/inbound-config', endpointController.updateInboundConfig);
+
+// 获取入站预设模板列表
+router.get('/inbound-templates', endpointController.getInboundTemplates);
+
+// 获取单个入站预设模板
+router.get('/inbound-templates/:type', endpointController.getInboundTemplate);
+
 module.exports = router;
