@@ -1,6 +1,6 @@
 {
   "name": "magicpush",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "displayName": "MagicPush",
   "description": "支持多渠道消息推送的统一管理平台",
   "repository": {
@@ -8,6 +8,18 @@
     "url": "https://github.com/magiccode1412/magicpush"
   },
   "changelog": [
+    {
+      "version": "1.2.3",
+      "date": "2026-03-09",
+      "type": "release",
+      "changes": [
+        "新增入站 Webhook 配置功能",
+        "支持字段映射（JSONPath）",
+        "内置 Grafana、Prometheus、GitHub、Emby 预设模板",
+        "支持 GET/POST 请求方式",
+        "消息内容自动丰富化"
+      ]
+    },
     {
       "version": "1.2.2",
       "date": "2026-03-08",
