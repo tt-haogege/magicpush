@@ -170,19 +170,31 @@ const html = `
 </html>
 `
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+};
+
 export async function onRequest(context) {
   const { request, env } = context;
 
+  // 处理 OPTIONS 预检请求
+  if (request.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   const targetUpstream = env.TARGET_UPSTREAM;
   if (!targetUpstream) {
-    return new Response("请设置环境变量 TARGET_UPSTREAM", { status: 500 });
+    return new Response("请设置环境变量 TARGET_UPSTREAM", { status: 500, headers: corsHeaders });
   }
 
   const url = new URL(request.url);
-  if (url.pathname = "/") {
+  if (url.pathname === "/") {
     return new Response(html, {
       headers: {
-        "Content-Type": "text/html; charset=utf-8"
+        "Content-Type": "text/html; charset=utf-8",
+        ...corsHeaders
       }
     })
   }
@@ -200,11 +212,14 @@ export async function onRequest(context) {
   });
 
   try {
-    return await fetch(newRequest, {
-      // 强制走 IPv6 访问源站（适配你的 IPv6-only）
-      ipv6: true,
+    const response = await fetch(newRequest);
+    // 添加 CORS 头部到代理响应
+    const newResponse = new Response(response.body, response);
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      newResponse.headers.set(key, value);
     });
+    return newResponse;
   } catch (err) {
-    return new Response(`代理错误：${err.message}`, { status: 502 });
+    return new Response(`代理错误：${err.message}`, { status: 502, headers: corsHeaders });
   }
 }
