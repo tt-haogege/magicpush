@@ -35,10 +35,10 @@ class TelegramChannel extends BaseChannel {
       timeout: 10000,
     };
 
-    // 如果配置了代理，添加代理配置
-    const proxyConfig = this.parseProxyUrl(this.proxyUrl);
-    if (proxyConfig) {
-      axiosConfig.proxy = proxyConfig;
+    // 如果配置了代理，使用代理Agent
+    const proxyAgent = this.createProxyAgent(this.proxyUrl);
+    if (proxyAgent) {
+      axiosConfig.httpsAgent = proxyAgent;
     }
 
     const response = await axios.post(`${this.apiUrl}/sendMessage`, payload, axiosConfig);
