@@ -85,6 +85,7 @@ const initDatabase = async () => {
         token TEXT NOT NULL UNIQUE,
         description TEXT,
         is_active INTEGER DEFAULT 1,
+        inbound_config TEXT,
         last_used_at DATETIME,
         created_at DATETIME DEFAULT (datetime('now', 'localtime')),
         updated_at DATETIME DEFAULT (datetime('now', 'localtime')),
@@ -146,6 +147,14 @@ const initDatabase = async () => {
     try {
       db.exec(`ALTER TABLE push_logs ADD COLUMN ip TEXT`);
       logger.info('已为推送记录表添加 ip 字段');
+    } catch (e) {
+      // 字段已存在，忽略错误
+    }
+
+    // 迁移：为已存在的接口表添加 inbound_config 字段
+    try {
+      db.exec(`ALTER TABLE endpoints ADD COLUMN inbound_config TEXT`);
+      logger.info('已为接口表添加 inbound_config 字段');
     } catch (e) {
       // 字段已存在，忽略错误
     }

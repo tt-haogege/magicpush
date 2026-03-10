@@ -18,6 +18,12 @@ router.get('/', paginationValidation, endpointController.getEndpoints);
 // 验证令牌是否可用
 router.post('/validate-token', validateTokenValidation, endpointController.validateToken);
 
+// 获取入站预设模板列表（必须在 /:id 之前）
+router.get('/inbound-templates', endpointController.getInboundTemplates);
+
+// 获取单个入站预设模板（必须在 /:id 之前）
+router.get('/inbound-templates/:type', endpointController.getInboundTemplate);
+
 // 创建接口
 router.post('/', createEndpointValidation, endpointController.createEndpoint);
 
@@ -38,5 +44,8 @@ router.put('/:id/channels', endpointController.updateEndpointChannels);
 
 // 获取接口渠道绑定
 router.get('/:id/channels', endpointController.getEndpointChannels);
+
+// 更新入站配置
+router.put('/:id/inbound-config', endpointController.updateInboundConfig);
 
 module.exports = router;

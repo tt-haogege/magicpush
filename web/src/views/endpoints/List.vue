@@ -82,6 +82,20 @@
           </div>
         </div>
 
+        <!-- 入站配置状态 -->
+        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 mb-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <Settings2 class="w-4 h-4 text-gray-400" />
+              <span class="text-xs text-gray-500 dark:text-gray-400">入站配置</span>
+            </div>
+            <el-button text size="small" @click="openInboundConfig(endpoint)">
+              <span v-if="endpoint.inbound_config?.enabled" class="text-green-500">已配置</span>
+              <span v-else class="text-gray-400">未配置</span>
+            </el-button>
+          </div>
+        </div>
+
         <!-- 统计 -->
         <div class="flex items-center justify-between text-sm">
           <span class="text-gray-500 dark:text-gray-400">
@@ -187,11 +201,131 @@
         </el-button>
       </template>
     </el-dialog>
+
+    <!-- 入站配置抽屉 -->
+    <el-drawer
+      v-model="showInboundDrawer"
+      title="入站 Webhook 配置"
+      direction="rtl"
+      size="500px"
+    >
+      <div class="p-4 space-y-6">
+        <!-- 启用开关 -->
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-medium text-gray-900 dark:text-white">启用入站接收</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">允许外部服务通过 Webhook 推送消息</div>
+          </div>
+          <el-switch v-model="inboundForm.enabled" />
+        </div>
+
+        <el-divider v-if="inboundForm.enabled" />
+
+        <!-- 数据来源类型 -->
+        <div v-if="inboundForm.enabled">
+          <div class="font-medium text-gray-900 dark:text-white mb-3">数据来源类型</div>
+          <div class="space-y-2">
+            <label
+              v-for="template in inboundTemplates"
+              :key="template.id"
+              class="flex items-start gap-2 p-3 rounded-lg border cursor-pointer transition-colors"
+              :class="inboundForm.sourceType === template.id 
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'"
+            >
+              <el-radio 
+                v-model="inboundForm.sourceType" 
+                :value="template.id"
+                class="mt-0.5 !mr-0"
+              />
+              <div>
+                <div class="font-medium text-gray-900 dark:text-white">{{ template.name }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">{{ template.description }}</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 字段映射 -->
+        <div v-if="inboundForm.enabled && inboundForm.sourceType === 'generic'">
+          <div class="font-medium text-gray-900 dark:text-white mb-3">字段映射规则</div>
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">标题字段 (JSONPath)</label>
+              <el-input 
+                v-model="inboundForm.fieldMapping.title" 
+                placeholder="$.alerts[0].labels.alertname"
+              />
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">内容字段 (JSONPath)</label>
+              <el-input 
+                v-model="inboundForm.fieldMapping.content" 
+                placeholder="$.alerts[0].annotations.message"
+              />
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">消息类型</label>
+              <el-select v-model="inboundForm.defaultValues.type" class="w-full">
+                <el-option label="纯文本 (text)" value="text" />
+                <el-option label="Markdown" value="markdown" />
+                <el-option label="HTML" value="html" />
+              </el-select>
+            </div>
+          </div>
+        </div>
+
+        <el-divider v-if="inboundForm.enabled && inboundForm.sourceType === 'generic'" />
+
+        <!-- 接收地址 -->
+        <div v-if="inboundForm.enabled">
+          <div class="font-medium text-gray-900 dark:text-white mb-3">接收地址</div>
+          <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+            <div class="flex items-center justify-between">
+              <code class="text-xs text-gray-700 dark:text-gray-300 break-all">
+                POST {{ inboundUrl }}
+              </code>
+              <el-button text size="small" @click="copyInboundUrl">
+                <Copy class="w-3 h-3" />
+              </el-button>
+            </div>
+          </div>
+        </div>
+
+        <el-divider v-if="inboundForm.enabled" />
+
+        <!-- 测试 -->
+        <div v-if="inboundForm.enabled">
+          <div class="font-medium text-gray-900 dark:text-white mb-3">测试请求</div>
+          <el-input
+            v-model="inboundTestData"
+            type="textarea"
+            :rows="6"
+            placeholder='{"alerts": [{"labels": {"alertname": "测试告警"}, "annotations": {"message": "测试消息"}}]}'
+          />
+          <el-button 
+            type="primary" 
+            class="mt-3 w-full" 
+            :loading="inboundTestLoading"
+            @click="testInbound"
+          >
+            发送测试请求
+          </el-button>
+        </div>
+      </div>
+
+      <template #footer>
+        <el-button @click="showInboundDrawer = false">取消</el-button>
+        <el-button type="primary" :loading="inboundSaving" @click="saveInboundConfig">
+          保存配置
+        </el-button>
+      </template>
+    </el-drawer>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue'
+import { ref, reactive, onMounted, watch, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   getEndpoints,
@@ -202,6 +336,8 @@ import {
   updateEndpointChannels,
   validateToken,
   getEndpointChannels,
+  updateInboundConfig,
+  getInboundTemplates,
 } from '@/api/endpoint'
 import { getChannels } from '@/api/channel'
 import {
@@ -213,6 +349,7 @@ import {
   Trash2,
   Copy,
   RefreshCw,
+  Settings2,
 } from 'lucide-vue-next'
 
 const endpoints = ref([])
@@ -220,6 +357,60 @@ const channels = ref([])
 const showCreateDialog = ref(false)
 const formLoading = ref(false)
 const editingEndpoint = ref(null)
+
+// 入站配置相关
+const showInboundDrawer = ref(false)
+const inboundEditingEndpoint = ref(null)
+const inboundTemplates = ref([])
+const inboundSaving = ref(false)
+const inboundTestLoading = ref(false)
+const inboundTestData = ref('')
+
+// 各数据来源类型的示例数据
+const inboundExampleData = {
+  grafana: {
+    alerts: [{
+      labels: { alertname: '测试告警' },
+      annotations: { message: '这是一条测试消息' }
+    }]
+  },
+  prometheus: {
+    alerts: [{
+      labels: { alertname: 'InstanceDown', severity: 'critical' },
+      annotations: { description: '节点 node-01 已宕机超过5分钟' }
+    }]
+  },
+  github: {
+    action: 'opened',
+    repository: { full_name: 'owner/repo' },
+    sender: { login: 'username' }
+  },
+  emby: {
+    Title: 'Test Notification',
+    Description: 'Test Notification Description',
+    Event: 'system.webhooktest',
+    User: { Name: 'emby' },
+    Server: { Name: 'Emby' }
+  },
+  generic: {
+    title: '示例标题',
+    content: '示例内容',
+    type: 'text'
+  }
+}
+
+const inboundForm = reactive({
+  enabled: false,
+  sourceType: 'generic',
+  fieldMapping: {
+    title: '',
+    content: '',
+  },
+  defaultValues: {
+    type: 'text',
+    title: '新消息',
+  },
+})
 
 const formRef = ref(null)
 const form = reactive({
@@ -289,15 +480,19 @@ const validateTokenInput = async () => {
 
 const loadData = async () => {
   try {
-    const [endpointsRes, channelsRes] = await Promise.all([
+    const [endpointsRes, channelsRes, templatesRes] = await Promise.all([
       getEndpoints(),
       getChannels(),
+      getInboundTemplates(),
     ])
     if (endpointsRes.success) {
       endpoints.value = endpointsRes.data || []
     }
     if (channelsRes.success) {
       channels.value = channelsRes.data || []
+    }
+    if (templatesRes.success) {
+      inboundTemplates.value = templatesRes.data || []
     }
   } catch (error) {
     console.error('加载数据失败:', error)
@@ -453,10 +648,117 @@ const resetForm = () => {
   tokenValidation.message = ''
 }
 
+// 入站配置相关方法
+const inboundUrl = computed(() => {
+  if (!inboundEditingEndpoint.value) return ''
+  return `${window.location.origin}/api/inbound/${inboundEditingEndpoint.value.token}`
+})
+
+const openInboundConfig = (endpoint) => {
+  inboundEditingEndpoint.value = endpoint
+  
+  // 重置表单
+  inboundForm.enabled = endpoint.inbound_config?.enabled || false
+  inboundForm.sourceType = endpoint.inbound_config?.sourceType || 'generic'
+  inboundForm.fieldMapping = {
+    title: endpoint.inbound_config?.fieldMapping?.title || '',
+    content: endpoint.inbound_config?.fieldMapping?.content || '',
+  }
+  inboundForm.defaultValues = {
+    type: endpoint.inbound_config?.defaultValues?.type || 'text',
+    title: endpoint.inbound_config?.defaultValues?.title || '新消息',
+  }
+  
+  // 设置测试数据
+  const exampleData = inboundExampleData[inboundForm.sourceType]
+  inboundTestData.value = exampleData ? JSON.stringify(exampleData, null, 2) : ''
+  
+  showInboundDrawer.value = true
+}
+
+const copyInboundUrl = () => {
+  navigator.clipboard.writeText(`POST ${inboundUrl.value}`)
+  ElMessage.success('接收地址已复制')
+}
+
+const saveInboundConfig = async () => {
+  if (!inboundEditingEndpoint.value) return
+  
+  inboundSaving.value = true
+  try {
+    const config = inboundForm.enabled ? {
+      enabled: true,
+      sourceType: inboundForm.sourceType,
+      fieldMapping: inboundForm.fieldMapping,
+      defaultValues: inboundForm.defaultValues,
+    } : { enabled: false }
+    
+    const res = await updateInboundConfig(inboundEditingEndpoint.value.id, config)
+    if (res.success) {
+      ElMessage.success('入站配置已保存')
+      // 更新本地数据
+      const index = endpoints.value.findIndex(e => e.id === inboundEditingEndpoint.value.id)
+      if (index !== -1) {
+        endpoints.value[index].inbound_config = config
+      }
+      showInboundDrawer.value = false
+    }
+  } catch (error) {
+    ElMessage.error(error.message || '保存失败')
+  } finally {
+    inboundSaving.value = false
+  }
+}
+
+const testInbound = async () => {
+  if (!inboundTestData.value.trim()) {
+    ElMessage.warning('请输入测试数据')
+    return
+  }
+  
+  let testData
+  try {
+    testData = JSON.parse(inboundTestData.value)
+  } catch (e) {
+    ElMessage.error('JSON 格式错误')
+    return
+  }
+  
+  inboundTestLoading.value = true
+  try {
+    // 直接调用入站接口
+    const response = await fetch(inboundUrl.value, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(testData),
+    })
+    
+    const result = await response.json()
+    
+    if (result.success) {
+      ElMessage.success('测试推送成功')
+    } else {
+      ElMessage.warning(result.message || '部分推送失败')
+    }
+  } catch (error) {
+    ElMessage.error(error.message || '测试失败')
+  } finally {
+    inboundTestLoading.value = false
+  }
+}
+
 // 监听对话框关闭，重置表单
 watch(showCreateDialog, (newVal) => {
   if (!newVal) {
     resetForm()
+  }
+})
+
+// 监听数据来源类型变化，更新示例数据
+watch(() => inboundForm.sourceType, (newType) => {
+  const exampleData = inboundExampleData[newType]
+  if (exampleData) {
+    inboundTestData.value = JSON.stringify(exampleData, null, 2)
   }
 })
 
