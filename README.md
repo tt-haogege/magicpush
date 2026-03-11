@@ -1,8 +1,8 @@
 <div align="center">
   <img src="public/logo.png" alt="测试logo" width="256px">
+  <h1 align="center">MagicPush</h1> 
 </div>
 
-<h1 align="center">MagicPush</h1>
 
 一个支持多种消息渠道的推送服务管理平台，用户可以通过标准化的REST API接口将消息推送到多种通知渠道。
 
@@ -20,8 +20,22 @@
 > 提示：演示环境仅作测试使用，请勿发送违规信息，数据会定期重置，请勿存储重要信息。
 
 ## 预览
-![浅色预览图](public/image/Snipaste_2026-03-02_22-26-59.webp)
-![深色预览图](public/image/Snipaste_2026-03-02_22-27-46.webp)
+
+<detail>
+  <summary>点击查看预览图</summary>
+  <div>
+  <img src="./public/image/1.webp" alt="preview"></img>
+  <img src="./public/image/2.webp" alt="preview"></img>
+  <img src="./public/image/3.webp" alt="preview"></img>
+  <img src="./public/image/4.webp" alt="preview"></img>
+  <img src="./public/image/5.webp" alt="preview"></img>
+  <img src="./public/image/6.webp" alt="preview"></img>
+  <img src="./public/image/7.webp" alt="preview"></img>
+  <img src="./public/image/8.webp" alt="preview"></img>
+  <img src="./public/image/9.webp" alt="preview"></img>
+  <img src="./public/image/10.webp" alt="preview"></img>
+  </div>
+</detail>
 
 ## 困境
 
