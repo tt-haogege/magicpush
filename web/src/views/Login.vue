@@ -3,10 +3,11 @@
     <div class="w-full max-w-md">
       <!-- Logo -->
       <div class="text-center mb-8">
-        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4 shadow-lg shadow-blue-500/30">
-          <Bell class="w-8 h-8 text-white" />
+        <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-blue-500/30">
+          <!-- <Bell class="w-8 h-8 text-white" /> -->
+          <img src="/favicon.png" alt="MagicPush" />
         </div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">MagicPush</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">魔法推送</h1>
         <p class="text-gray-500 dark:text-gray-400">欢迎回来，请登录您的账户</p>
       </div>
 
